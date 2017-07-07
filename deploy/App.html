@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>wide-grid-app</title>
+
+    <script type="text/javascript" src="/apps/2.1/sdk.js"></script>
+
+    <script type="text/javascript">
+        Rally.onReady(function () {
+                Ext.define("TSStringFilter",{extend:"Rally.data.QueryFilter",config:{query_string:""},constructor:function(config){this.mergeConfig(config),this.callParent([this.config])},_createQueryString:function(property,operator,value){return this.filter=this.fromQueryString(this.query_string),""+this.filter},fromQueryString:function(query){var parser=Ext.create("Rally.data.util.QueryStringParser",{string:query}),initial_expression=parser.parseExpression();return initial_expression}}),Ext.define("CustomApp",{extend:"Rally.app.App",componentCls:"app",launch:function(){this.type_path=this.getSetting("type_path")||"HierarchicalRequirement",this.query_string=this.getSetting("query_string"),this.filter=this.query_string?Ext.create("TSStringFilter",{query_string:this.query_string}):null,console.log(this.getSetting("type_path")),console.log(this.getSetting("query_string")),Ext.create("Rally.data.wsapi.TreeStoreBuilder").build({models:[this.type_path],filters:this.filter?[this.filter]:[],autoLoad:!0,enableHierarchy:!0}).then({success:this._onStoreBuilt,scope:this})},_onStoreBuilt:function(store){var modelNames=[this.type_path],context=this.getContext();this.add({xtype:"rallygridboard",context:context,modelNames:modelNames,toggleState:"grid",stateful:!1,plugins:["rallygridboardaddnew",{ptype:"rallygridboardfieldpicker",headerPosition:"left",modelNames:modelNames,stateful:!0,stateId:context.getScopedStateId("columns-example")},{ptype:"rallygridboardinlinefiltercontrol",inlineFilterButtonConfig:{stateful:!0,stateId:context.getScopedStateId("filters"),modelNames:modelNames,inlineFilterPanelConfig:{quickFilterPanelConfig:{defaultFields:["ArtifactSearch","Owner","ModelType"]}}}}],gridConfig:{store:store,columnCfgs:["Name","State","Priority","Severity"]},height:this.getHeight(),width:5e3})},getSettingsFields:function(){return[{name:"type_path",xtype:"rallycombobox",displayField:"DisplayName",fieldLabel:"Artifact Type",autoExpand:!0,storeConfig:{model:"TypeDefinition",filters:[{property:"Restorable",value:!0}]},labelWidth:100,labelAlign:"left",minWidth:200,margin:10,valueField:"TypePath"},{xtype:"textareafield",grow:!0,name:"query_string",labelAlign:"top",width:250,margin:10,fieldLabel:"Limit to items that currently meet this query:"}]}});
+
+            Rally.launchApp('CustomApp', {
+                name:"wide-grid-app",
+	            parentRepos:""
+            });
+
+        });
+    </script>
+
+
+    <style type="text/css">
+        .app {
+     /* Add app styles here */
+}
+
+    </style>
+</head>
+<body></body>
+</html>
